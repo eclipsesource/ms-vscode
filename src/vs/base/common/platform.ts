@@ -216,7 +216,7 @@ export const setTimeout0IsFaster = (typeof $globalThis.postMessage === 'function
  * that browsers set when the nesting level is > 5.
  */
 export const setTimeout0 = (() => {
-	if (setTimeout0IsFaster) {
+	if (setTimeout0IsFaster && $globalThis.addEventListener) {
 		interface IQueueElement {
 			id: number;
 			callback: () => void;

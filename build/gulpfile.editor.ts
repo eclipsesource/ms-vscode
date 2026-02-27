@@ -54,7 +54,7 @@ const extractEditorSrcTask = task.define('extract-editor-src', () => {
 			'vs/base/browser/dompurify/dompurify.js',
 			'vs/base/common/marked/marked.js',
 		],
-		shakeLevel: 2, // 0-Files, 1-InnerFile, 2-ClassMembers
+		shakeLevel: 0, // 0-Files, 1-InnerFile, 2-ClassMembers
 		importIgnorePattern: /\.css$/,
 		destRoot: path.join(root, 'out-editor-src'),
 		tsOutDir: '../out-monaco-editor-core/esm/vs',
@@ -120,6 +120,16 @@ function toExternalDTS(contents: string) {
 	}
 	return lines.join('\n').replace(/\n\n\n+/g, '\n\n');
 }
+
+const deleteIrrelevantSourceFiles = task.define('delete-irrelevant-source-files', async () => {
+	const SRC_DIR = path.join(import.meta.dirname, '../out-monaco-editor-core/esm');
+	await Promise.all(fs.readdirSync(SRC_DIR).map(file => {
+		if (file !== 'vs') {
+			return util.rimraf(path.join(SRC_DIR, file))();
+		}
+		return undefined;
+	}));
+});
 
 const finalEditorResourcesTask = task.define('final-editor-resources', () => {
 	return es.merge(
@@ -212,6 +222,7 @@ gulp.task('editor-distro',
 		),
 		extractEditorSrcTask,
 		compileEditorESMTask,
+		deleteIrrelevantSourceFiles,
 		finalEditorResourcesTask
 	)
 );

@@ -1353,4 +1353,6 @@ function createDOMPurify() {
 }
 var purify = createDOMPurify();
 
-export { purify as default };
+module.exports = purify;
+module.exports.default = purify;
+//# sourceMappingURL=purify.es.mjs.map

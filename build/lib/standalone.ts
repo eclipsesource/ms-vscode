@@ -44,7 +44,9 @@ export function extractEditor(options: tss.ITreeShakingOptions & { destRoot: str
 	compilerOptions.noEmit = false;
 	compilerOptions.noUnusedLocals = false;
 	compilerOptions.preserveConstEnums = false;
-	compilerOptions.declaration = false;
+	compilerOptions.declaration = true;
+	compilerOptions.sourceMap = true;
+	compilerOptions.moduleResolution = ts.ModuleResolutionKind.Classic;
 
 
 	options.compilerOptions = compilerOptions;
