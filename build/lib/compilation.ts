@@ -49,11 +49,20 @@ interface ICompileTaskOptions {
 	readonly emitError: boolean;
 	readonly transpileOnly: boolean | { esbuild: boolean };
 	readonly preserveEnglish: boolean;
+	/**
+	 * Point the source maps at the sources with relative paths instead of a
+	 * file URI of this machine's source folder, e.g. for published source maps.
+	 */
+	readonly relativeSourceRoot?: boolean;
 }
 
-export function createCompile(src: string, { build, emitError, transpileOnly, preserveEnglish }: ICompileTaskOptions) {
+export function createCompile(src: string, { build, emitError, transpileOnly, preserveEnglish, relativeSourceRoot }: ICompileTaskOptions) {
 	const projectPath = path.join(import.meta.dirname, '../../', src, 'tsconfig.json');
 	const overrideOptions = { ...getTypeScriptCompilerOptions(src), inlineSources: Boolean(build) };
+	if (relativeSourceRoot) {
+		// gulp-sourcemaps turns '' into the path from each source map to the source folder
+		overrideOptions.sourceRoot = '';
+	}
 	if (!build) {
 		overrideOptions.inlineSourceMap = true;
 	}

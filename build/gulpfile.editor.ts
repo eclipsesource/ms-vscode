@@ -66,7 +66,7 @@ const compileEditorESMTask = task.define('compile-editor-esm', () => {
 	const src = 'out-editor-src';
 	const out = 'out-monaco-editor-core/esm';
 
-	const compile = compilation.createCompile(src, { build: true, emitError: true, transpileOnly: false, preserveEnglish: true });
+	const compile = compilation.createCompile(src, { build: true, emitError: true, transpileOnly: false, preserveEnglish: true, relativeSourceRoot: true });
 	const srcPipe = gulp.src(`${src}/**`, { base: `${src}` });
 
 	return (
