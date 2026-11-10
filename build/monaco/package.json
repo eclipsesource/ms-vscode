@@ -1,17 +1,20 @@
 {
-  "name": "monaco-editor-core",
+  "name": "@theia/monaco-editor-core",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.144.1",
   "description": "A browser based code editor",
   "author": "Microsoft Corporation",
   "license": "MIT",
   "typings": "./esm/vs/editor/editor.api.d.ts",
   "module": "./esm/vs/editor/editor.main.js",
+  "main": "./esm/vs/editor/editor.main.js",
+  "type": "module",
+  "homepage": "https://github.com/eclipsesource/ms-vscode/tree/monaco_uplift_1.144.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/vscode"
+    "url": "https://github.com/eclipsesource/ms-vscode"
   },
   "bugs": {
-    "url": "https://github.com/microsoft/vscode/issues"
+    "url": "https://github.com/eclipse-theia/theia/issues"
   }
 }

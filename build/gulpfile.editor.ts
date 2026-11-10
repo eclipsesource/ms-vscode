@@ -62,7 +62,7 @@ const extractEditorSrcTask = task.define('extract-editor-src', () => {
 			'vs/base/browser/dompurify/dompurify.js',
 			'vs/base/common/marked/marked.js',
 		],
-		shakeLevel: 2, // 0-Files, 1-InnerFile, 2-ClassMembers
+		shakeLevel: 0, // 0-Files, 1-InnerFile, 2-ClassMembers
 		importIgnorePattern: /\.css$/,
 		destRoot: path.join(root, 'out-editor-src'),
 		tsOutDir: '../out-monaco-editor-core/esm/vs',
@@ -129,6 +129,36 @@ function toExternalDTS(contents: string) {
 	return lines.join('\n').replace(/\n\n\n+/g, '\n\n');
 }
 
+const deleteIrrelevantSourceFiles = task.define('delete-irrelevant-source-files', async () => {
+	const SRC_DIR = path.join(import.meta.dirname, '../out-monaco-editor-core/esm');
+	await Promise.all(fs.readdirSync(SRC_DIR).map(file => {
+		if (file !== 'vs') {
+			return util.rimraf(path.join(SRC_DIR, file))();
+		}
+		return undefined;
+	}));
+});
+
+/**
+ * Removes local absolute paths from the source maps. The sources are embedded
+ * (`sourcesContent`), so each source is referenced relative to its map instead.
+ */
+const relativizeSourceMapsTask = task.define('relativize-source-maps', async () => {
+	const esmDir = path.join(import.meta.dirname, '../out-monaco-editor-core/esm');
+	const mapFiles = (fs.readdirSync(esmDir, { recursive: true }) as string[]).filter(file => file.endsWith('.js.map'));
+	await Promise.all(mapFiles.map(async file => {
+		const mapPath = path.join(esmDir, file);
+		const sourceMap = JSON.parse(await fs.promises.readFile(mapPath, 'utf8'));
+		const mapDir = path.dirname(file);
+		delete sourceMap.sourceRoot;
+		sourceMap.sources = sourceMap.sources.map((source: string) => {
+			const sourcePath = source.startsWith('file://') ? path.relative(path.join(root, 'out-editor-src'), new URL(source).pathname) : source;
+			return path.relative(mapDir, sourcePath).split(path.sep).join('/');
+		});
+		await fs.promises.writeFile(mapPath, JSON.stringify(sourceMap));
+	}));
+});
+
 const finalEditorResourcesTask = task.define('final-editor-resources', () => {
 	return es.merge(
 		// other assets
@@ -175,8 +205,8 @@ const finalEditorResourcesTask = task.define('final-editor-resources', () => {
 				}
 
 				setUnsetField(json, 'dependencies', {
-					'marked': markedVersion,
-					'dompurify': dompurifyVersion
+					'marked': `^${markedVersion}`,
+					'dompurify': `^${dompurifyVersion}`
 				});
 
 				data.contents = Buffer.from(JSON.stringify(json, null, '  '));
@@ -220,6 +250,8 @@ task.task('editor-distro',
 		),
 		extractEditorSrcTask,
 		compileEditorESMTask,
+		deleteIrrelevantSourceFiles,
+		relativizeSourceMapsTask,
 		finalEditorResourcesTask
 	)
 );

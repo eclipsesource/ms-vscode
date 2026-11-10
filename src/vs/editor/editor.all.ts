@@ -6,6 +6,7 @@
 import './browser/coreCommands.js';
 import './browser/widget/codeEditor/codeEditorWidget.js';
 import './browser/widget/diffEditor/diffEditor.contribution.js';
+import './browser/widget/diffEditor/embeddedDiffEditorWidget.js';
 import './contrib/anchorSelect/browser/anchorSelect.js';
 import './contrib/bracketMatching/browser/bracketMatching.js';
 import './contrib/caretOperations/browser/caretOperations.js';
